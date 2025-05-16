@@ -1,16 +1,19 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "buscaprof.h"
+#include "betweeness.h"
+#include "dijkstra.h"
 #include "leitura.h"
 #include "livros.h"
 #include "lista.h"
 #include "grafo.h"
 
-//Colocado para debug. A ser removido.
-extern unsigned long qtdTotal;
+extern const char* personagens[QTD_PERSONAGENS];
 
-static void exibirSaida(unsigned **grafoInt, double **grafoDouble, char *nomeDoLivro, int tam);
-static void exibirMatriz(unsigned** matriz, int tam);
-static void exibirGrafoD(double **grafoD, int tam);
+static void exibirSaida(unsigned**,double**,char*,double*,int);
+static void exibirMatriz(unsigned**,int);
+static void exibirGrafoD(double**,int);
+static void exibirBetweeness(double*,int);
 
 static const struct livro livros[QTD_LIVROS] = 
     { GUERRA_DOS_TRONOS, "A Guerra dos Tronos",
@@ -42,8 +45,17 @@ int main(int argc, char **argv)
     unsigned **grafoInt = lerArquivo(arq);
     double **grafoDouble = inverterArestas(grafoInt,QTD_PERSONAGENS);
 
-    exibirSaida(grafoInt,grafoDouble,livros[num-1].nome,QTD_PERSONAGENS);
+    NoNoInt *caminhos = completeDijkstra(QTD_PERSONAGENS, grafoDouble);
+    double betweeness[QTD_PERSONAGENS];
 
+
+    exibirSaida(grafoInt,grafoDouble,livros[num-1].nome,betweeness,QTD_PERSONAGENS);
+    //printNoNoInt(caminhos);
+
+    printf("\nO grafo tem %d componentes conexos.\n",componentesConexos(grafoDouble,QTD_PERSONAGENS));
+    printf("\n%s é o personagem central.\n", personagens[personagemCentral(caminhos,betweeness)]);
+
+    freeWays(caminhos);
     liberarGrafo((void**) grafoInt,QTD_PERSONAGENS);
     liberarGrafo((void**) grafoDouble,QTD_PERSONAGENS);
 
@@ -52,13 +64,14 @@ int main(int argc, char **argv)
 
 /*-------------------------------FUNÇÕES PARA EXIBIR NA SAÍDA PADRÃO--------------------------------*/
 
-static void exibirSaida(unsigned **grafoInt, double **grafoDouble, char *nomeDoLivro, int tam)
+static void exibirSaida(unsigned **grafoInt, double **grafoDouble, 
+    char *nomeDoLivro, double *betweeness, int tam)
 {
     printf("\n\t\t\t\t\tLIVRO: %s\n\n", nomeDoLivro);
-    printf("\t\t\t\t\tQUANTIDADE DE MENÇÕES: %ld\n\n", qtdTotal-1);
     puts("             Arya   |   Sam   |  Bran   |  Jaime  |  Sansa  | Brienne | Catelyn | Tyrion  |  Cersei  |  Varys  ");
     exibirMatriz(grafoInt,tam);    putchar('\n');
     exibirGrafoD(grafoDouble,tam); putchar('\n');
+    exibirBetweeness(betweeness, tam);
 }
 
 static char* nomes[QTD_PERSONAGENS] = {"Arya   ", "Sam    ", "Bran   ", "Jaime  ", "Sansa  ",
@@ -73,6 +86,12 @@ static void exibirMatriz(unsigned** matriz, int tam)
            printf("%10d", matriz[i][j]);
         putchar('\n');
     }
+}
+
+static void exibirBetweeness(double *b, int tam){
+    for(int i = 0; i < tam; i++)
+        printf("b[%s] = %lf\n", personagens[i], b[i]);
+    putchar('\n');
 }
 
 static void exibirGrafoD(double **grafoD, int tam)

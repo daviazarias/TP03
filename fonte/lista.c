@@ -3,13 +3,10 @@
 
 #define DIST_MAX 100
 
-//Colocado para debug. A ser removido.
-unsigned long qtdTotal = 0;
-
 //Cria um nó contendo o valor informado.
 static struct node *criarNo(enum personagem personagem)
 {
-    struct node *novoNo = malloc(sizeof(struct node)); qtdTotal++;
+    struct node *novoNo = malloc(sizeof(struct node));
     novoNo->personagem = personagem;
     novoNo->distancia = 0;
     novoNo->prox = NULL;

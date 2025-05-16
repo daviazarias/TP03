@@ -6,6 +6,9 @@
 
 #define TAM_BUF 64
 
+const char* personagens[QTD_PERSONAGENS] = 
+{"Arya", "Sam", "Bran", "Jaime", "Sansa", "Brienne", "Catelyn", "Tyrion", "Cersei", "Varys"};
+
 // Verifica se as strings a e b são "iguais", desconsiderando
 // eventuais caracteres sobressalentes na string a.
 // Isso é necessário para detectar uso de pronome possessivo no inglês.
@@ -24,9 +27,6 @@ static bool compararStrings(const char *a, const char *b)
 // Caso contrário, retorna um elemento especial da enumeração: Ninguem.
 static enum personagem personagemMencionado(const char *nome)
 {
-    static const char* personagens[QTD_PERSONAGENS] = 
-    {"Arya", "Sam", "Bran", "Jaime", "Sansa", "Brienne", "Catelyn", "Tyrion", "Cersei", "Varys"};
-
     for(int i = 0; i < QTD_PERSONAGENS; i++)
         if(compararStrings(nome,personagens[i]))
             return i;

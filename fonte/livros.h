@@ -16,5 +16,5 @@ struct livro {
     char* caminho;
     char* nome;
 };
-    
+
 #endif

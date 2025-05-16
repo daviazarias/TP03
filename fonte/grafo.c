@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <math.h>
 
 unsigned **criarGrafo(int tam)
 {
@@ -26,4 +27,16 @@ double **inverterArestas(unsigned **grafoInt, int tam)
         for(int j = 0; j < tam; j++)
             grafoDouble[i][j] = 1.0 / grafoInt[i][j];
     return grafoDouble;
+}
+
+int quantidadeArestas(double **grafo, int tam)
+{
+    int qtd = 0;
+    
+    for(int i = 0; i < tam; i++)
+        for(int j = i + 1; j < tam; j++)
+            if(grafo[i][j] != INFINITY)
+                qtd++;
+
+    return qtd;
 }
