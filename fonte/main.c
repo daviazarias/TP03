@@ -1,12 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "componentes_conexos.h"
 #include "betweeness.h"
+#include "componentes_conexos.h"
 #include "dijkstra.h"
+#include "grafo.h"
 #include "leitura.h"
 #include "livros.h"
 #include "lista.h"
-#include "grafo.h"
 
 extern const char* personagens[QTD_PERSONAGENS];
 
@@ -42,22 +42,34 @@ int main(int argc, char **argv)
         return -2;
     }
 
+    // Gera o grafo de proximidade de menções a partir da leitura do arquivo.
     unsigned **grafoInt = lerArquivo(arq);
+
+    // Gera o grafo de distâncias a partir da inversão de arestas
+    // do grafo de proximidade de menções.
     double **grafoDouble = inverterArestas(grafoInt,QTD_PERSONAGENS);
+
+    // Computa os caminhos mínimos entre todos os vértices do grafo de distâncias.
     NoNoInt *caminhos = completeDijkstra(QTD_PERSONAGENS, grafoDouble);
 
+    // Computa os índices de betweeness para cada vértice.
     double betweeness[QTD_PERSONAGENS];
     enum personagem persCentral = calculaBetweeness(caminhos,betweeness);
 
+    // Obtém os valores dos componentes conexos e da quantidade de arestas
+    // no grafo para computar seu circuit rank. 
     int numComponentes = contarComponentesConexos(grafoInt, QTD_PERSONAGENS);
     int numArestas = quantidadeArestas(grafoInt,QTD_PERSONAGENS);
     int circuitRank = (numArestas - QTD_PERSONAGENS + numComponentes);
 
+    // Exibe informações na saída padrão.
     exibirSaida(grafoInt,grafoDouble,livros[num-1].nome,
         betweeness,QTD_PERSONAGENS,circuitRank);
 
+    // Gera o arquivo .dot para permitir a visualização do grafo.
     gerarDot(grafoDouble,QTD_PERSONAGENS,"grafo.dot",persCentral);
 
+    // Desaloca todas as estruturas utilizadas antes do encerramento do programa.
     liberarCaminhos(caminhos);
     liberarGrafo((void**) grafoInt,QTD_PERSONAGENS);
     liberarGrafo((void**) grafoDouble,QTD_PERSONAGENS);
@@ -66,7 +78,6 @@ int main(int argc, char **argv)
 }
 
 /*-------------------------------FUNÇÕES PARA EXIBIR NA SAÍDA PADRÃO--------------------------------*/
-
 static void exibirSaida(unsigned **grafoInt, double **grafoDouble, 
     char *nomeDoLivro, double *betweeness, int tam, int circuitRank)
 {
@@ -80,7 +91,7 @@ static void exibirSaida(unsigned **grafoInt, double **grafoDouble,
 static char* nomes[QTD_PERSONAGENS] = {"Arya   ", "Sam    ", "Bran   ", "Jaime  ", "Sansa  ",
     "Brienne", "Catelyn", "Tyrion ", "Cersei ", "Varys  "};
 
-// Gambiarra pra exibir a matriz na saída padrão.
+// Exibe a matriz correspondente à proximidade de menções entre cada par de personagens.
 static void exibirGrafoI(unsigned** matriz, int tam)
 {
     printf("--------------------------------------------------------------------------"
@@ -95,6 +106,7 @@ static void exibirGrafoI(unsigned** matriz, int tam)
     }
 }
 
+// Exibe os índices de betweeness no vetor "b"
 static void exibirBetweeness(double *b, int tam){
     printf("--------------------------------------------------------------------------"
         "------------------------------------\n");
@@ -105,6 +117,7 @@ static void exibirBetweeness(double *b, int tam){
         "------------------------------------\n");
 }
 
+// Exibe a matriz correspondente à "distância" entre cada par de personagens.
 static void exibirGrafoD(double **grafoD, int tam)
 {
     printf("--------------------------------------------------------------------------"
