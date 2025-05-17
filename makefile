@@ -23,6 +23,9 @@ $(NOME_ARQ): $(ARQS_O)
 exibirGrafo: $(NOME_GRAFO).dot
 	@ dot -Tpng $< -o $(NOME_GRAFO).png
 
+$(NOME_GRAFO).dot: all
+	@ ./$(NOME_ARQ)
+
 objetos:
 	mkdir -p objetos
 
