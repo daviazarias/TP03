@@ -24,7 +24,7 @@ static void exploraPilha(NoInt* pilha, int *centralidade){
     }
 }
 
-enum personagem personagemCentral(NoNoInt* caminhos, double* betweeness){
+enum personagem calculaBetweeness(NoNoInt* caminhos, double* betweeness){
 
     int centralidade[QTD_PERSONAGENS];
 

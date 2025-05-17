@@ -43,6 +43,7 @@ void printNoNoInt(NoNoInt* allWays);
 NoInt* reverseStack(NoInt* stack);
 void printNameWay(NoNoInt* allWays, char** nomes);
 
+void freeStack(NoInt* way);
 void freeWays(NoNoInt* ways);
 void freeVisX(VisX *vertices);
 

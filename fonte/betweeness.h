@@ -4,6 +4,6 @@
 #include "dijkstra.h"
 #include "lista.h"
 
-enum personagem personagemCentral(NoNoInt* caminhos, double* betweeness);
+enum personagem calculaBetweeness(NoNoInt* caminhos, double* betweeness);
 
 #endif

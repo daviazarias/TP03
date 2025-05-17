@@ -7,6 +7,8 @@
         "stdio.h": "c",
         "stdlib.h": "c",
         "stdbool.h": "c",
-        "leitura.h": "c"
+        "leitura.h": "c",
+        "componentes_conexos.h": "c",
+        "betweeness.h": "c"
     }
 }

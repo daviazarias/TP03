@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "buscaprof.h"
+#include "componentes_conexos.h"
 #include "betweeness.h"
 #include "dijkstra.h"
 #include "leitura.h"
@@ -10,7 +10,7 @@
 
 extern const char* personagens[QTD_PERSONAGENS];
 
-static void exibirSaida(unsigned**,double**,char*,double*,int);
+static void exibirSaida(unsigned**,double**,char*,double*,int,int);
 static void exibirMatriz(unsigned**,int);
 static void exibirGrafoD(double**,int);
 static void exibirBetweeness(double*,int);
@@ -44,16 +44,17 @@ int main(int argc, char **argv)
 
     unsigned **grafoInt = lerArquivo(arq);
     double **grafoDouble = inverterArestas(grafoInt,QTD_PERSONAGENS);
-
     NoNoInt *caminhos = completeDijkstra(QTD_PERSONAGENS, grafoDouble);
+
     double betweeness[QTD_PERSONAGENS];
+    calculaBetweeness(caminhos,betweeness);
 
+    int numComponentes = contarComponentesConexos(grafoInt, QTD_PERSONAGENS);
+    int numArestas = quantidadeArestas(grafoDouble,QTD_PERSONAGENS);
+    int circuitRank = (numArestas - QTD_PERSONAGENS + numComponentes);
 
-    exibirSaida(grafoInt,grafoDouble,livros[num-1].nome,betweeness,QTD_PERSONAGENS);
-    //printNoNoInt(caminhos);
-
-    printf("\nO grafo tem %d componentes conexos.\n",componentesConexos(grafoDouble,QTD_PERSONAGENS));
-    printf("\n%s é o personagem central.\n", personagens[personagemCentral(caminhos,betweeness)]);
+    exibirSaida(grafoInt,grafoDouble,livros[num-1].nome,betweeness,
+        QTD_PERSONAGENS,circuitRank);
 
     freeWays(caminhos);
     liberarGrafo((void**) grafoInt,QTD_PERSONAGENS);
@@ -65,7 +66,7 @@ int main(int argc, char **argv)
 /*-------------------------------FUNÇÕES PARA EXIBIR NA SAÍDA PADRÃO--------------------------------*/
 
 static void exibirSaida(unsigned **grafoInt, double **grafoDouble, 
-    char *nomeDoLivro, double *betweeness, int tam)
+    char *nomeDoLivro, double *betweeness, int tam, int circuitRank)
 {
     printf("\n\t\t\t\t\tLIVRO: %s\n\n", nomeDoLivro);
     puts("             Arya   |   Sam   |  Bran   |  Jaime  |  Sansa  | Brienne | Catelyn | Tyrion  |  Cersei  |  Varys  ");

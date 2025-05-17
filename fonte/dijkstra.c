@@ -110,7 +110,7 @@ NoNoInt* wayInList(VisX* vetor, int numOfVert, NoNoInt* ways){
             if (start < end) {
                 ways = push_2(way, ways);
             }
-
+            else {freeStack(way);}
         }
     }
     return ways;
@@ -123,6 +123,7 @@ NoNoInt* completeDijkstra(int numOfVert, double **mat) {
     for(int i = 0; i < numOfVert; i++){
         VisX* tmp = dijkstraAlgoritm(numOfVert, mat, i);
         allWays = wayInList(tmp, numOfVert, allWays);
+        free(tmp);
     }
     return allWays;
 }
