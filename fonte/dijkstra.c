@@ -174,7 +174,7 @@ void freeStack(NoInt* way){
     }
 }
 
-void freeWays(NoNoInt* ways){
+void liberarCaminhos(NoNoInt* ways){
     NoNoInt *prev = NULL;
     while(ways){
         prev = ways;

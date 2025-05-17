@@ -11,7 +11,7 @@
 extern const char* personagens[QTD_PERSONAGENS];
 
 static void exibirSaida(unsigned**,double**,char*,double*,int,int);
-static void exibirMatriz(unsigned**,int);
+static void exibirGrafoI(unsigned**,int);
 static void exibirGrafoD(double**,int);
 static void exibirBetweeness(double*,int);
 
@@ -30,15 +30,15 @@ int main(int argc, char **argv)
     // linha de comando seleciona um dos 5 livros.
     int num = (argc < 2) ? LIVRO_PADRAO : atoi(argv[1]);
     if(num < 1 || num > QTD_LIVROS){
-        printf("O argumento precisa ser um número entre 1 e %d:\n\n", QTD_LIVROS);
+        fprintf(stderr,"O argumento precisa ser um número entre 1 e %d:\n\n", QTD_LIVROS);
         for(int i = 0; i < QTD_LIVROS; i++)
-            printf("%s\n", livros[i].nome);
+            fprintf(stderr,"%s\n", livros[i].nome);
         return -1;
     }
 
     FILE *arq = fopen(livros[num-1].caminho,"r");
     if(!arq){
-        printf("\nERRO: Arquivo %s não encontrado.\n\n", livros[num-1].caminho); 
+        fprintf(stderr,"\nERRO: Arquivo %s não encontrado.\n\n", livros[num-1].caminho); 
         return -2;
     }
 
@@ -47,16 +47,18 @@ int main(int argc, char **argv)
     NoNoInt *caminhos = completeDijkstra(QTD_PERSONAGENS, grafoDouble);
 
     double betweeness[QTD_PERSONAGENS];
-    calculaBetweeness(caminhos,betweeness);
+    enum personagem persCentral = calculaBetweeness(caminhos,betweeness);
 
     int numComponentes = contarComponentesConexos(grafoInt, QTD_PERSONAGENS);
-    int numArestas = quantidadeArestas(grafoDouble,QTD_PERSONAGENS);
+    int numArestas = quantidadeArestas(grafoInt,QTD_PERSONAGENS);
     int circuitRank = (numArestas - QTD_PERSONAGENS + numComponentes);
 
-    exibirSaida(grafoInt,grafoDouble,livros[num-1].nome,betweeness,
-        QTD_PERSONAGENS,circuitRank);
+    exibirSaida(grafoInt,grafoDouble,livros[num-1].nome,
+        betweeness,QTD_PERSONAGENS,circuitRank);
 
-    freeWays(caminhos);
+    gerarDot(grafoDouble,QTD_PERSONAGENS,"grafo.dot",persCentral);
+
+    liberarCaminhos(caminhos);
     liberarGrafo((void**) grafoInt,QTD_PERSONAGENS);
     liberarGrafo((void**) grafoDouble,QTD_PERSONAGENS);
 
@@ -69,18 +71,22 @@ static void exibirSaida(unsigned **grafoInt, double **grafoDouble,
     char *nomeDoLivro, double *betweeness, int tam, int circuitRank)
 {
     printf("\n\t\t\t\t\tLIVRO: %s\n\n", nomeDoLivro);
-    puts("             Arya   |   Sam   |  Bran   |  Jaime  |  Sansa  | Brienne | Catelyn | Tyrion  |  Cersei  |  Varys  ");
-    exibirMatriz(grafoInt,tam);    putchar('\n');
+    exibirGrafoI(grafoInt,tam); putchar('\n');
     exibirGrafoD(grafoDouble,tam); putchar('\n');
     exibirBetweeness(betweeness, tam);
+    printf("\nCIRCUIT RANK: %d\n\n", circuitRank);
 }
 
 static char* nomes[QTD_PERSONAGENS] = {"Arya   ", "Sam    ", "Bran   ", "Jaime  ", "Sansa  ",
     "Brienne", "Catelyn", "Tyrion ", "Cersei ", "Varys  "};
 
 // Gambiarra pra exibir a matriz na saída padrão.
-static void exibirMatriz(unsigned** matriz, int tam)
+static void exibirGrafoI(unsigned** matriz, int tam)
 {
+    printf("--------------------------------------------------------------------------"
+        "------------------------------------\n");
+    puts("\t\t\t\t\t       GRAFO DE MENÇÕES\n");
+    puts("             Arya       Sam      Bran      Jaime     Sansa    Brienne   Catelyn   Tyrion     Cersei     Varys\n");
     for(int i = 0; i < tam; i++){
         printf("%s", nomes[i]);
         for(int j = 0; j < tam; j++)
@@ -90,13 +96,21 @@ static void exibirMatriz(unsigned** matriz, int tam)
 }
 
 static void exibirBetweeness(double *b, int tam){
+    printf("--------------------------------------------------------------------------"
+        "------------------------------------\n");
+    printf("BETWEENESS  ");
     for(int i = 0; i < tam; i++)
-        printf("b[%s] = %lf\n", personagens[i], b[i]);
-    putchar('\n');
+        printf("%lf  ", b[i]);
+    printf("\n--------------------------------------------------------------------------"
+        "------------------------------------\n");
 }
 
 static void exibirGrafoD(double **grafoD, int tam)
 {
+    printf("--------------------------------------------------------------------------"
+        "------------------------------------\n");
+    puts("\t\t\t\t\t       GRAFO INVERTIDO\n");
+    puts("             Arya       Sam      Bran      Jaime     Sansa    Brienne   Catelyn   Tyrion     Cersei     Varys\n");
     for(int i = 0; i < tam; i++){
         printf("%s    ", nomes[i]);
         for(int j = 0; j < tam; j++)
